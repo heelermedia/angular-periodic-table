@@ -224,60 +224,68 @@ export class ElementModel {
     public height: number;
     public x: number;
     public y: number;
-
-    constructor(private elementModel: any, private ctx: CanvasRenderingContext2D) {
+    public isWithinElementBounds = false;
+    public isSelected = false;
+    private scalingFactor = 1.1;
+    private instanceVariablesSet = false;
+    constructor(public elementModel: any, private ctx: CanvasRenderingContext2D) {
     }
 
-    private clear(ctx: CanvasRenderingContext2D): void {
-        ctx.clearRect(this.x, this.y, this.width, this.height);
+    public clear(): void {
+        this.ctx.save();
+        this.ctx.fillStyle = `rgb(0, 0, 0)`;
+        this.ctx.clearRect(this.x, this.y, this.width, this.height);
+        this.ctx.fillRect(this.x, this.y, this.width, this.height);
+        this.ctx.restore();
     }
 
     private setInstanceVariables(points: any[]): void {
-        let x1 = points[0][0];
-        let y1 = points[0][1];
-        let x2 = points[2][0];
-        let y2 = points[2][1];
-        this.width = x1 - x2;
-        this.height = y1 - y2;
+        const x1 = points[0][0];
+        const y1 = points[0][1];
+        const x2 = points[2][0];
+        const y2 = points[2][1];
+        this.width = (x1 - x2) * this.scalingFactor;
+        this.height = (y1 - y2) * this.scalingFactor;
 
-        //as top left corner of rectangle
-        this.x = points[2][0];
-        this.y = points[2][1];
+        // as top left corner of rectangle
+        this.x = points[2][0] * this.scalingFactor;
+        this.y = points[2][1] * this.scalingFactor;
+        this.instanceVariablesSet = true;
     }
 
     public drawText(): void {
-        let textFrames = this.elementModel.textFrames;
+        const textFrames = this.elementModel.textFrames;
         for (let f = 0; f < textFrames.length; f++) {
             const textFrame = textFrames[f];
             this.ctx.save();
-            this.ctx.fillStyle = `rgb(${textFrame.color.r}, ${textFrame.color.g}, ${textFrame.color.b})`;
+            this.ctx.fillStyle = this.isWithinElementBounds
+                ? `rgb(255, 255, 255)`
+                : `rgb(${textFrame.color.r}, ${textFrame.color.g}, ${textFrame.color.b})`;
             this.ctx.textBaseline = 'top';
-            this.ctx.font = `bold ${textFrame.size}px Roboto`;
-            this.ctx.fillText(textFrame.text, textFrame.x, (textFrame.y * -1));
+            this.ctx.font = `bold ${textFrame.size * this.scalingFactor}px Roboto`;
+            this.ctx.fillText(textFrame.text, textFrame.x * this.scalingFactor, (textFrame.y * -1) * this.scalingFactor);
             this.ctx.restore();
         }
     }
 
     public drawGraphics(): void {
-
-        const pathItems: any[] = this.elementModel.paths.reverse();
-
-        this.setInstanceVariables(pathItems[0].points);
-
-        //this.ctx.strokeStyle = '#fff';
+        const paths = [...this.elementModel.paths];
+        const pathItems: any[] = paths.reverse();
+        if (this.instanceVariablesSet === false) {
+            this.setInstanceVariables(pathItems[0].points);
+        }
+        // this.ctx.strokeStyle = '#fff';
         for (let j = 0; j < pathItems.length; j++) {
             const pathItem = pathItems[j];
             const points = pathItem.points;
-
             const color = pathItem.color;
-
             this.ctx.beginPath();
-            for (var i = 0; i < points.length; i++) {
+            for (let i = 0; i < points.length; i++) {
                 const point = points[i];
                 if (i === 0) {
-                    this.ctx.moveTo(point[0], point[1]);
+                    this.ctx.moveTo(point[0] * this.scalingFactor, point[1] * this.scalingFactor);
                 } else {
-                    this.ctx.lineTo(point[0], point[1]);
+                    this.ctx.lineTo(point[0] * this.scalingFactor, point[1] * this.scalingFactor);
                 }
             }
             this.ctx.save();
@@ -289,10 +297,8 @@ export class ElementModel {
             } else {
                 this.ctx.stroke();
             }
+
             this.ctx.restore();
         }
-
-        this.drawText();
     }
-
 }
