@@ -226,7 +226,7 @@ export class ElementModel {
     public y: number;
     public isWithinElementBounds = false;
     public isSelected = false;
-    private scalingFactor = 1.1;
+    private scalingFactor = 1;
     private instanceVariablesSet = false;
     constructor(public elementModel: any, private ctx: CanvasRenderingContext2D) {
     }

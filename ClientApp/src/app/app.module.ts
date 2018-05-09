@@ -12,6 +12,9 @@ import { FetchDataComponent } from './fetch-data/fetch-data.component';
 import { HeaderComponent } from './header/header.component';
 import { PeriodicTableComponent } from './periodic-table/periodic-table.component';
 
+// custom
+import { PeriodicDataModelService } from './periodic-table/periodic-data-model.service';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -31,7 +34,7 @@ import { PeriodicTableComponent } from './periodic-table/periodic-table.componen
       { path: ':id', component: PeriodicTableComponent, pathMatch: 'full' }
     ])
   ],
-  providers: [],
+  providers: [PeriodicDataModelService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

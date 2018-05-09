@@ -4,6 +4,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 // custom
 import { PeriodicTableModel } from './periodic-table-model';
 import { ElementModel } from './element-model';
+// services
+import { PeriodicDataModelService } from './periodic-data-model.service';
 
 @Component({
   selector: 'app-periodic-table',
@@ -11,8 +13,7 @@ import { ElementModel } from './element-model';
   styleUrls: ['./periodic-table.component.css']
 })
 export class PeriodicTableComponent implements AfterViewInit, OnDestroy {
-  // todo to sevice
-  private model: PeriodicTableModel = new PeriodicTableModel();
+  private model: PeriodicTableModel;
   private elementDisplayList: ElementModel[] = [];
   // make a ref variable for the active route subscriber so we can
   // destroy it in ngOnDestroy
@@ -21,30 +22,39 @@ export class PeriodicTableComponent implements AfterViewInit, OnDestroy {
 
   private ctx: CanvasRenderingContext2D;
 
-  constructor(private route: ActivatedRoute, private router: Router) { }
+  constructor(private periodicDataModelService: PeriodicDataModelService, private route: ActivatedRoute, private router: Router) { }
 
   public ngAfterViewInit() {
+    // set the periodic data model
+    this.model = this.periodicDataModelService.getPeridocTableDataModel();
 
-    // get the context
-    const canvasElement: HTMLCanvasElement = this.canvas.nativeElement;
+    // set the canvas rendering context
+    this.setCanvasRenderingContext2D();
 
-    this.ctx = canvasElement.getContext('2d');
+    // set up canvas width and height
+    this.initializeCanvasWidthAndHeight();
 
+    // fill the canvas with black
+    this.fillBackGround();
     
-
-    canvasElement.width = window.innerWidth;
-    canvasElement.height = window.innerHeight;
-    //this.ctx.translate(canvasElement.width / 2, canvasElement.height / 2);
-    this.fillBackGround(window.innerWidth, window.innerHeight);
-
     this.initializeElements();
 
     this.routeSubscription = this.route.params.subscribe(params => {
-        this.onRouteChanged(params.id);
-   });
+      this.onRouteChanged(params.id);
+    });
   }
 
-  private fillBackGround(width: number, height: number): void {
+  private setCanvasRenderingContext2D(): void {
+    this.ctx = this.canvas.nativeElement.getContext('2d');
+  }
+
+  private initializeCanvasWidthAndHeight(): void {
+    const canvasElement: HTMLCanvasElement = this.canvas.nativeElement;
+    const width = canvasElement.width = window.innerWidth;
+    const height = canvasElement.height = window.innerHeight;
+  }
+
+  private fillBackGround(width: number = window.innerWidth, height: number = window.innerHeight): void {
     this.ctx.fillRect(0, 0, width, height);
   }
 
@@ -126,7 +136,7 @@ export class PeriodicTableComponent implements AfterViewInit, OnDestroy {
   }
 
   public onMouseMove(eventObject: MouseEvent) {
-   this.onMouseAction(eventObject.pageX, eventObject.pageY, false);
+    this.onMouseAction(eventObject.pageX, eventObject.pageY, false);
   }
 
   public ngOnDestroy(): void {
