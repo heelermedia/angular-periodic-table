@@ -1,3 +1,5 @@
 # angular-periodic-table
+An interactive periodic table component from scratch using Angular 5 and html canvas graphics
 
-# YouTube video coming soon...
+# youtube video
+https://www.youtube.com/watch?v=bhb51NDo4Bw

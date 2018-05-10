@@ -30,7 +30,7 @@ import { PeriodicDataModelService } from './periodic-table/periodic-data-model.s
     HttpClientModule,
     FormsModule,
     RouterModule.forRoot([
-      { path: '', redirectTo: 'app-periodic-table', pathMatch: 'full' },
+      { path: '', redirectTo: '/He', pathMatch: 'full' },
       { path: ':id', component: PeriodicTableComponent, pathMatch: 'full' }
     ])
   ],
